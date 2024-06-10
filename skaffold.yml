@@ -1,0 +1,28 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+build:
+  # artificats section is telling skaffold about the things that it needs to maintain, means the pods running inside the cluster it needs to track changes.
+  artifacts:
+    - image: shanbiswas/shopping-cart-auth  # if any changes is done outside src/ folder then it is going to rebuild the image and update the deployment tied to it
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      sync: # if any changes is done inside src/ folder, and it is a .js file, then it is going to push the changes in the pod immediately
+        manual:
+          - dest: .
+            src: 'src/**/*.js'
+    - image: shanbiswas/shopping-cart-product  # if any changes is done outside src/ folder then it is going to rebuild the image and update the deployment tied to it
+      context: products
+      docker:
+        dockerfile: Dockerfile
+      sync: # if any changes is done inside src/ folder, and it is a .js file, then it is going to push the changes in the pod immediately
+        manual:
+          - dest: .
+            src: 'src/**/*.js'
+  local:  # this is telling not to push the images to docker hub when a change is done, this is not req when using skaffold
+    push: false
+  # googleCloudBuild:
+  #   projectId: ticketing-dev-410104
+manifests:
+  rawYaml:
+    - ./infra/k8s/*
