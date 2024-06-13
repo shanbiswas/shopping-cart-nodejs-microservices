@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rabbitmq-depl
+  name: order-mongo-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rabbitmq
+      app: order-mongo
   template:
     metadata:
       labels:
-        app: rabbitmq
+        app: order-mongo
     spec:
       containers:
-      - name: rabbitmq
-        image: rabbitmq:3.9.11
+      - name: order-mongo
+        image: mongo
         resources:
           limits:
             memory: "512Mi"
@@ -25,12 +25,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq-srv
+  name: order-mongo-srv
 spec:
   selector:
-    app: rabbitmq
+    app: order-mongo
   ports:
-    - name: client
-      protocol: TCP
-      port: 15672
-      targetPort: 15672
+  - name: db
+    protocol: TCP
+    port: 27017
+    targetPort: 27017

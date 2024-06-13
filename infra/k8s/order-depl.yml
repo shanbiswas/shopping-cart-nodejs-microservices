@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-depl
+  name: order-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auth
+      app: order
   template:
     metadata:
       labels:
-        app: auth
+        app: order
     spec:
       containers:
-      - name: auth
-        image: shanbiswas/shopping-cart-auth
+      - name: order
+        image: shanbiswas/shopping-cart-order
         env:
           - name: RABBITMQ_URL
             value: amqp://guest:guest@rabbitmq-service.default:5672
           - name: MONGO_URI_SHOPPING_CART
-            value: 'mongodb://auth-mongo-srv:27017/shopping-cart-auth'
+            value: 'mongodb://order-mongo-srv:27017/shopping-cart-order'
           - name: JWT_KEY
             valueFrom:
               secretKeyRef:
@@ -35,12 +35,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auth-srv
+  name: order-srv
 spec:
   selector:
-    app: auth
+    app: order
   ports:
-  - name: auth
+  - name: order
     protocol: TCP
     port: 3000
     targetPort: 3000

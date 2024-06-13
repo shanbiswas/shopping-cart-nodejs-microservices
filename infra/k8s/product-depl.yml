@@ -16,6 +16,8 @@ spec:
       - name: product
         image: shanbiswas/shopping-cart-product
         env:
+          - name: RABBITMQ_URL
+            value: amqp://guest:guest@rabbitmq-service.default:5672
           - name: MONGO_URI_SHOPPING_CART
             value: 'mongodb://product-mongo-srv:27017/shopping-cart-product'
           - name: JWT_KEY

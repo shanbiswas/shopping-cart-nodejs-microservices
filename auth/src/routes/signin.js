@@ -48,7 +48,7 @@ async (req, res) => {
 
   
   // Publish event with userId and token
-  amqp.connect('amqp://rabbitmq-srv:15672', function(error0, connection) {
+  amqp.connect('amqp://rabbitmq-service', function(error0, connection) {
     if (error0) {
         throw error0;
     }
@@ -57,13 +57,18 @@ async (req, res) => {
             throw error1;
         }
 
-        var queue = 'hello';
-        var msg = 'Hello World!';
+        var queue = 'UserLoggedIn';
+        var msg = {
+          token: userJwt,
+          user: existingUser
+        };
+        msg = JSON.stringify(msg);
 
-        channel.assertQueue(queue, {
+        channel.assertExchange(queue, 'fanout', {
             durable: false
         });
-        channel.sendToQueue(queue, Buffer.from(msg));
+        // channel.sendToQueue(queue, Buffer.from(msg));
+        channel.publish(queue, '', Buffer.from(msg));
 
         console.log(" [x] Sent %s", msg);
     });
@@ -71,6 +76,11 @@ async (req, res) => {
         connection.close();
         process.exit(0);
     }, 500);
+  });
+
+  res.status(200).send({
+    token: userJwt,
+    user: existingUser
   });
 });
 

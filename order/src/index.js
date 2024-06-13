@@ -19,14 +19,14 @@ const start = async () => {
   
   try {
     await mongoose.connect(process.env.MONGO_URI_SHOPPING_CART);
-    console.log('connected to mongodb from products service');
+    console.log('connected to mongodb from order service');
 
     // Listen to event 'UserLoggedIn'
     amqp.connect('amqp://rabbitmq-service', function(error0, connection) {
       if (error0) {
         throw error0;
       }
-    
+
       connection.createChannel(async function(error1, channel1) {
         if (error1) {
           throw error1;
@@ -75,8 +75,6 @@ const start = async () => {
               noAck: true
             });
           });
-          
-          
         })
         
       });
@@ -86,13 +84,13 @@ const start = async () => {
           throw error1;
         }
 
-        const queue2 = 'OrderCreated';
+        const queue2 = 'ProductsCreated';
     
         channel2.assertExchange(queue2, 'fanout', {
           durable: false
         });
     
-        console.log(`Waiting for OrderCreated messages in ${queue2}. To exit press CTRL+C`);
+        console.log(`Waiting for ProductsCreated messages in ${queue2}. To exit press CTRL+C`);
     
         await new Promise((resolve, reject) => {
           channel2.assertQueue('', {
@@ -108,26 +106,11 @@ const start = async () => {
               if(msg.content) {
                 console.log(" [x] %s", msg.content.toString());
 
-                const products = JSON.parse(msg.content);
+                const data = JSON.parse(msg.content);
       
                 // Save the message to MongoDB
-                const updatedProductData = [];
-                const productIds = products.map(p => p.productId);
-                const productDetails = await Product.find().where('_id').in(productIds).exec();
-                productDetails.forEach((product) => {
-                  const qtyCustomerAskedFor = products.find(p => p.productId === product.id);
-              
-                  updatedProductData.push(
-                    {
-                      updateOne: { 
-                        filter: { _id: product.id }, 
-                        update: { quantity: product.quantity - qtyCustomerAskedFor.quantity } 
-                      }
-                    }
-                  );
-                });
-                await Product.bulkWrite(updatedProductData);
-                console.log('Products updated');
+                await Product.insertMany(data.products);
+                console.log('Products saved');
               }
               resolve(msg);
             }, {

@@ -19,6 +19,14 @@ build:
         manual:
           - dest: .
             src: 'src/**/*.js'
+    - image: shanbiswas/shopping-cart-order  # if any changes is done outside src/ folder then it is going to rebuild the image and update the deployment tied to it
+      context: order
+      docker:
+        dockerfile: Dockerfile
+      sync: # if any changes is done inside src/ folder, and it is a .js file, then it is going to push the changes in the pod immediately
+        manual:
+          - dest: .
+            src: 'src/**/*.js'
   local:  # this is telling not to push the images to docker hub when a change is done, this is not req when using skaffold
     push: false
   # googleCloudBuild:

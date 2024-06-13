@@ -2,7 +2,8 @@ const express = require('express');
 
 const cookieSession = require('cookie-session');
 const currentUserRouter = require('./routes/current-user');
-const createProductsRouter = require('./routes/create-products');
+const createOrderRouter = require('./routes/create-order');
+const getOrdersRouter = require('./routes/get-orders');
 const getProductsRouter = require('./routes/get-products');
 
 const app = express();
@@ -21,7 +22,8 @@ app.use(
 );
 
 app.use(currentUserRouter);
-app.use(createProductsRouter);
+app.use(createOrderRouter);
+app.use(getOrdersRouter);
 app.use(getProductsRouter);
 
 app.all('*', async (req, res, next) => {
